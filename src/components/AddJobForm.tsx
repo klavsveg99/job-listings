@@ -1,13 +1,25 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { supabase } from '../supabaseClient'
 import { useAuth } from '../contexts/AuthContext'
 import './AddJobForm.css'
 
-interface AddJobFormProps {
-  onJobAdded: () => void
+interface Job {
+  id: string
+  title: string
+  company: string
+  status: string
+  url?: string
+  notes?: string
+  created_at: string
 }
 
-export const AddJobForm = ({ onJobAdded }: AddJobFormProps) => {
+interface AddJobFormProps {
+  onJobAdded: () => void
+  editingJob?: Job | null
+  onEditComplete?: () => void
+}
+
+export const AddJobForm = ({ onJobAdded, editingJob, onEditComplete }: AddJobFormProps) => {
   const { user } = useAuth()
   const [formData, setFormData] = useState({
     title: '',
@@ -21,6 +33,20 @@ export const AddJobForm = ({ onJobAdded }: AddJobFormProps) => {
   const [showForm, setShowForm] = useState(false)
 
   const statuses = ['saved', 'applied', 'interview stage', 'rejected', 'offer']
+
+  // When editing job changes, populate the form
+  useEffect(() => {
+    if (editingJob) {
+      setFormData({
+        title: editingJob.title,
+        company: editingJob.company,
+        status: editingJob.status,
+        url: editingJob.url || '',
+        notes: editingJob.notes || '',
+      })
+      setShowForm(true)
+    }
+  }, [editingJob])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target
@@ -40,20 +66,41 @@ export const AddJobForm = ({ onJobAdded }: AddJobFormProps) => {
         throw new Error('User not authenticated')
       }
 
-      const { error } = await supabase.from('jobs').insert([
-        {
-          user_id: user.id,
-          title: formData.title,
-          company: formData.company,
-          status: formData.status,
-          url: formData.url || null,
-          notes: formData.notes || null,
-        },
-      ])
+      let error
+      
+      if (editingJob) {
+        // Update existing job
+        const { error: updateError } = await supabase
+          .from('jobs')
+          .update({
+            title: formData.title,
+            company: formData.company,
+            status: formData.status,
+            url: formData.url || null,
+            notes: formData.notes || null,
+          })
+          .eq('id', editingJob.id)
+        
+        error = updateError
+      } else {
+        // Create new job
+        const { error: insertError } = await supabase.from('jobs').insert([
+          {
+            user_id: user.id,
+            title: formData.title,
+            company: formData.company,
+            status: formData.status,
+            url: formData.url || null,
+            notes: formData.notes || null,
+          },
+        ])
+        
+        error = insertError
+      }
 
       if (error) {
-        console.error('Insert error:', error)
-        throw new Error(error.message || 'Failed to add job. Check that the database is set up.')
+        console.error('Insert/Update error:', error)
+        throw new Error(error.message || 'Failed to save job. Check that the database is set up.')
       }
 
       setFormData({
@@ -65,6 +112,7 @@ export const AddJobForm = ({ onJobAdded }: AddJobFormProps) => {
       })
       setShowForm(false)
       onJobAdded()
+      onEditComplete?.()
     } catch (err) {
       const message = err instanceof Error ? err.message : 'An error occurred'
       console.error('Full error:', err)
@@ -84,7 +132,7 @@ export const AddJobForm = ({ onJobAdded }: AddJobFormProps) => {
 
   return (
     <form className="add-job-form" onSubmit={handleSubmit}>
-      <h2>Add New Job</h2>
+      <h2>{editingJob ? 'Edit Job' : 'Add New Job'}</h2>
 
       {error && <div className="error-message">{error}</div>}
 
@@ -151,9 +199,16 @@ export const AddJobForm = ({ onJobAdded }: AddJobFormProps) => {
 
       <div className="form-buttons">
         <button type="submit" disabled={loading} className="submit-button">
-          {loading ? 'Adding...' : 'Add Job'}
+          {loading ? 'Saving...' : editingJob ? 'Save Changes' : 'Add Job'}
         </button>
-        <button type="button" onClick={() => setShowForm(false)} className="cancel-button">
+        <button 
+          type="button" 
+          onClick={() => {
+            setShowForm(false)
+            onEditComplete?.()
+          }} 
+          className="cancel-button"
+        >
           Cancel
         </button>
       </div>

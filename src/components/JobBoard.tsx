@@ -19,6 +19,7 @@ export const JobBoard = () => {
   const { user } = useAuth()
   const [jobs, setJobs] = useState<Job[]>([])
   const [loading, setLoading] = useState(true)
+  const [editingJob, setEditingJob] = useState<Job | null>(null)
 
   useEffect(() => {
     if (!user) return
@@ -88,7 +89,7 @@ export const JobBoard = () => {
 
   return (
     <div className="job-board">
-      <AddJobForm onJobAdded={fetchJobs} />
+      <AddJobForm onJobAdded={fetchJobs} editingJob={editingJob} onEditComplete={() => setEditingJob(null)} />
 
       {loading ? (
         <div className="loading">Loading jobs...</div>
@@ -104,6 +105,7 @@ export const JobBoard = () => {
               job={job}
               onDelete={handleDeleteJob}
               onStatusChange={handleUpdateStatus}
+              onEdit={setEditingJob}
             />
           ))}
         </div>

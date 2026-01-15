@@ -15,11 +15,12 @@ interface JobCardProps {
   job: Job
   onDelete: (jobId: string) => void
   onStatusChange: (jobId: string, newStatus: string) => void
+  onEdit: (job: Job) => void
 }
 
 const statuses = ['saved', 'applied', 'interview stage', 'rejected', 'offer']
 
-export const JobCard = ({ job, onDelete, onStatusChange }: JobCardProps) => {
+export const JobCard = ({ job, onDelete, onStatusChange, onEdit }: JobCardProps) => {
   const [isEditing, setIsEditing] = useState(false)
 
   const getStatusColor = (status: string) => {
@@ -38,7 +39,7 @@ export const JobCard = ({ job, onDelete, onStatusChange }: JobCardProps) => {
   }
 
   return (
-    <div className="job-card">
+    <div className="job-card" onClick={() => onEdit(job)} style={{ cursor: 'pointer' }}>
       <div className="job-header">
         <div>
           <h3 className="job-title">{job.title}</h3>
@@ -46,7 +47,8 @@ export const JobCard = ({ job, onDelete, onStatusChange }: JobCardProps) => {
         </div>
         <button
           className="delete-button"
-          onClick={() => {
+          onClick={(e) => {
+            e.stopPropagation()
             if (confirm('Are you sure you want to delete this job?')) {
               onDelete(job.id)
             }
@@ -67,6 +69,7 @@ export const JobCard = ({ job, onDelete, onStatusChange }: JobCardProps) => {
             }}
             className="status-select"
             autoFocus
+            onClick={(e) => e.stopPropagation()}
           >
             {statuses.map((status) => (
               <option key={status} value={status}>
@@ -78,7 +81,10 @@ export const JobCard = ({ job, onDelete, onStatusChange }: JobCardProps) => {
           <button
             className="status-badge"
             style={{ backgroundColor: getStatusColor(job.status) }}
-            onClick={() => setIsEditing(true)}
+            onClick={(e) => {
+              e.stopPropagation()
+              setIsEditing(true)
+            }}
             title="Click to change status"
           >
             {job.status.charAt(0).toUpperCase() + job.status.slice(1)}
