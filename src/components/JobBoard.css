@@ -40,3 +40,26 @@
   color: #667eea;
   font-weight: 500;
 }
+
+@media (max-width: 640px) {
+  .job-board {
+    padding: 1rem;
+  }
+
+  .add-job-button {
+    padding: 0.65rem 1.25rem;
+    font-size: 0.95rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .jobs-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .loading,
+  .empty-state {
+    padding: 2rem 1rem;
+    font-size: 1rem;
+  }
+}

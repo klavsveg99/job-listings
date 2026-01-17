@@ -31,10 +31,11 @@ export const AddJobForm = ({ onJobAdded, editingJob, onEditComplete }: AddJobFor
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [showForm, setShowForm] = useState(false)
+  const [showModal, setShowModal] = useState(false)
 
   const statuses = ['saved', 'applied', 'interview stage', 'rejected', 'offer']
 
-  // When editing job changes, populate the form
+  // When editing job changes, populate the form and show modal
   useEffect(() => {
     if (editingJob) {
       setFormData({
@@ -44,9 +45,23 @@ export const AddJobForm = ({ onJobAdded, editingJob, onEditComplete }: AddJobFor
         url: editingJob.url || '',
         notes: editingJob.notes || '',
       })
-      setShowForm(true)
+      setShowModal(true)
+      setShowForm(false)
     }
   }, [editingJob])
+
+  // Handle Escape key to close modal
+  useEffect(() => {
+    const handleEscapeKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && showModal) {
+        setShowModal(false)
+        onEditComplete?.()
+      }
+    }
+
+    document.addEventListener('keydown', handleEscapeKey)
+    return () => document.removeEventListener('keydown', handleEscapeKey)
+  }, [showModal, onEditComplete])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target
@@ -111,6 +126,7 @@ export const AddJobForm = ({ onJobAdded, editingJob, onEditComplete }: AddJobFor
         notes: '',
       })
       setShowForm(false)
+      setShowModal(false)
       onJobAdded()
       onEditComplete?.()
     } catch (err) {
@@ -122,15 +138,12 @@ export const AddJobForm = ({ onJobAdded, editingJob, onEditComplete }: AddJobFor
     }
   }
 
-  if (!showForm) {
-    return (
-      <button className="add-job-button" onClick={() => setShowForm(true)}>
-        + Add New Job
-      </button>
-    )
+  const handleCloseModal = () => {
+    setShowModal(false)
+    onEditComplete?.()
   }
 
-  return (
+  const formContent = (
     <form className="add-job-form" onSubmit={handleSubmit}>
       <h2>{editingJob ? 'Edit Job' : 'Add New Job'}</h2>
 
@@ -205,7 +218,7 @@ export const AddJobForm = ({ onJobAdded, editingJob, onEditComplete }: AddJobFor
           type="button" 
           onClick={() => {
             setShowForm(false)
-            onEditComplete?.()
+            handleCloseModal()
           }} 
           className="cancel-button"
         >
@@ -213,5 +226,31 @@ export const AddJobForm = ({ onJobAdded, editingJob, onEditComplete }: AddJobFor
         </button>
       </div>
     </form>
+  )
+
+  if (editingJob && showModal) {
+    return (
+      <div className="form-modal-overlay active" onClick={(e) => {
+        if (e.target === e.currentTarget) handleCloseModal()
+      }}>
+        <div className="form-modal-content">
+          {formContent}
+        </div>
+      </div>
+    )
+  }
+
+  if (showForm && !editingJob) {
+    return (
+      <>
+        {formContent}
+      </>
+    )
+  }
+
+  return (
+    <button className="add-job-button" onClick={() => setShowForm(true)}>
+      + Add New Job
+    </button>
   )
 }

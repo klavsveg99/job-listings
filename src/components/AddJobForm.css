@@ -1,3 +1,32 @@
+.form-modal-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  justify-content: center;
+  align-items: center;
+  padding: 1rem;
+  overflow-y: auto;
+}
+
+.form-modal-overlay.active {
+  display: flex;
+}
+
+.form-modal-content {
+  background: white;
+  border-radius: 12px;
+  max-width: 600px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
 .add-job-form {
   background: white;
   padding: 2rem;
@@ -5,6 +34,13 @@
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
   margin-bottom: 2rem;
   border: 2px solid #667eea;
+}
+
+.form-modal-content .add-job-form {
+  margin-bottom: 0;
+  border-radius: 12px;
+  box-shadow: none;
+  border: none;
 }
 
 .add-job-form h2 {
@@ -91,4 +127,26 @@
   border-radius: 6px;
   margin-bottom: 1rem;
   border-left: 4px solid #c33;
+}
+
+@media (max-width: 640px) {
+  .form-modal-content {
+    max-height: 85vh;
+  }
+
+  .form-modal-content .add-job-form {
+    padding: 1.5rem;
+  }
+
+  .form-buttons {
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+
+  .submit-button,
+  .cancel-button {
+    flex: 1;
+    padding: 0.65rem 1rem;
+    font-size: 0.95rem;
+  }
 }
