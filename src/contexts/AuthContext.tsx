@@ -39,40 +39,31 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, [])
 
   const signUp = async (email: string, password: string) => {
-    // First, try to sign in to check if email exists
-    const { error: signInError } = await supabase.auth.signInWithPassword({ 
-      email, 
-      password: 'check' // dummy password, just checking if email exists
-    })
+    console.log('Checking if user exists for:', email)
     
-    // If we get "Invalid login credentials" and email exists, the email is already registered
-    if (signInError && (signInError.message.includes('Invalid login credentials') || 
-        signInError.message.includes('invalid') || 
-        signInError.message.includes('email'))) {
-      // Email might exist, try to check by attempting signup
-      const { error: signUpError, data } = await supabase.auth.signUp({ email, password })
-      
-      if (signUpError?.message.includes('already registered') || 
-          signUpError?.message.includes('User already exists') ||
-          signUpError?.message.includes('duplicate')) {
-        throw new Error('This email is already registered. Please sign in instead.')
-      }
-      
-      if (signUpError) {
-        throw new Error(signUpError.message)
-      }
-      
-      return data
+    // First check if user exists using our custom function
+    const { data: userExists, error: checkError } = await supabase
+      .rpc('check_user_exists', { email_to_check: email })
+    
+    console.log('User check result:', { userExists, checkError })
+    
+    if (checkError) {
+      console.error('User check error:', checkError)
+      throw new Error(`Database error: ${checkError.message}`)
     }
     
-    // If email doesn't seem to exist, do normal signup
+    if (userExists) {
+      throw new Error('This email is already registered. Please sign in instead.')
+    }
+    
+    console.log('User does not exist, proceeding with signup')
+    
+    // Now attempt signup
     const { error, data } = await supabase.auth.signUp({ email, password })
+    
+    console.log('Signup result:', { error, data })
+    
     if (error) {
-      if (error.message.includes('already registered') || 
-          error.message.includes('User already exists') ||
-          error.message.includes('duplicate key')) {
-        throw new Error('This email is already registered. Please sign in instead.')
-      }
       throw new Error(error.message)
     }
     

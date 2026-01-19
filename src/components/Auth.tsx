@@ -31,14 +31,14 @@ export const Auth = () => {
       const message = err instanceof Error ? err.message : 'An error occurred'
       console.error('Auth error:', message)
       
-      // Check for duplicate user error - Supabase returns different messages
-      if (
+      // Check for duplicate user error - only during sign up
+      if (isSignUp && (
         message.toLowerCase().includes('already registered') || 
         message.toLowerCase().includes('user already exists') ||
         message.toLowerCase().includes('email already exists') ||
         message.toLowerCase().includes('duplicate') ||
-        (message.toLowerCase().includes('invalid') && message.toLowerCase().includes('login'))
-      ) {
+        message.toLowerCase().includes('user_already_exists')
+      )) {
         setError('This email is already registered. Please sign in instead.')
       } else {
         setError(message)
