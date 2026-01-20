@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useAuth } from '../contexts/AuthContext'
+import { ThemeToggle } from './ThemeToggle'
 import './Auth.css'
 
 export const Auth = () => {
@@ -73,7 +74,10 @@ export const Auth = () => {
           </>
         ) : (
           <>
-            <h1>{isSignUp ? 'Create Account' : 'Login'}</h1>
+            <h1>
+              <span>{isSignUp ? 'Create Account' : 'Login'}</span>
+              <ThemeToggle variant="inline" />
+            </h1>
             
             {error && (
               <div className="error-message">

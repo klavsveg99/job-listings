@@ -1,4 +1,5 @@
 import { useAuth } from '../contexts/AuthContext'
+import { ThemeToggle } from './ThemeToggle'
 import './Header.css'
 
 export const Header = () => {
@@ -15,7 +16,10 @@ export const Header = () => {
   return (
     <header className="header">
       <div className="header-content">
-        <h1>Job Board</h1>
+        <div className="header-left">
+          <h1>Job Board</h1>
+          <ThemeToggle variant="inline" />
+        </div>
         <div className="user-info">
           <span>{user?.email}</span>
           <button onClick={handleSignOut} className="logout-button">

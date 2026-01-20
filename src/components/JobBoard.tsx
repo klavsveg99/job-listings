@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { supabase } from '../supabaseClient'
 import { useAuth } from '../contexts/AuthContext'
 import { AddJobForm } from './AddJobForm'
@@ -18,12 +18,32 @@ interface Job {
 export const JobBoard = () => {
   const { user } = useAuth()
   const [jobs, setJobs] = useState<Job[]>([])
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(false)
   const [editingJob, setEditingJob] = useState<Job | null>(null)
+
+  const fetchJobs = useCallback(async () => {
+    if (!user) return
+
+    setLoading(true)
+    const { data, error } = await supabase
+      .from('jobs')
+      .select('*')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false })
+
+    if (error) {
+      console.error('Error fetching jobs:', error)
+    } else {
+      setJobs(data || [])
+    }
+    setLoading(false)
+  }, [user])
 
   useEffect(() => {
     if (!user) return
 
+    // Initial fetch
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchJobs()
 
     // Subscribe to real-time updates
@@ -46,24 +66,7 @@ export const JobBoard = () => {
     return () => {
       subscription.unsubscribe()
     }
-  }, [user])
-
-  const fetchJobs = async () => {
-    if (!user) return
-
-    const { data, error } = await supabase
-      .from('jobs')
-      .select('*')
-      .eq('user_id', user.id)
-      .order('created_at', { ascending: false })
-
-    if (error) {
-      console.error('Error fetching jobs:', error)
-    } else {
-      setJobs(data || [])
-    }
-    setLoading(false)
-  }
+  }, [user, fetchJobs])
 
   const handleDeleteJob = async (jobId: string) => {
     const { error } = await supabase.from('jobs').delete().eq('id', jobId)

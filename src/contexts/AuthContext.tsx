@@ -1,13 +1,13 @@
 import { createContext, useContext, useEffect, useState } from 'react'
-import type { User, Session } from '@supabase/supabase-js'
+import type { User, Session, AuthResponse } from '@supabase/supabase-js'
 import { supabase } from '../supabaseClient'
 
 interface AuthContextType {
   user: User | null
   session: Session | null
   loading: boolean
-  signUp: (email: string, password: string) => Promise<any>
-  signIn: (email: string, password: string) => Promise<any>
+  signUp: (email: string, password: string) => Promise<AuthResponse['data']>
+  signIn: (email: string, password: string) => Promise<{ user: User | null; session: Session | null }>
   signOut: () => Promise<void>
 }
 
@@ -76,8 +76,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }
 
   const signIn = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({ email, password })
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password })
     if (error) throw error
+    return data
   }
 
   const signOut = async () => {
@@ -92,6 +93,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   )
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useAuth = () => {
   const context = useContext(AuthContext)
   if (context === undefined) {

@@ -1,6 +1,6 @@
 .header {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
+  background: var(--color-card);
+  color: var(--color-text);
   padding: 1.5rem 0;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
 }
@@ -14,6 +14,12 @@
   align-items: center;
   gap: 1rem;
   flex-wrap: wrap;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
 }
 
 .header h1 {
@@ -35,9 +41,9 @@
 
 .logout-button {
   padding: 0.5rem 1.5rem;
-  background: rgba(255, 255, 255, 0.2);
-  color: white;
-  border: 2px solid white;
+  background: var(--color-card);
+  color: var(--color-text);
+  border: 2px solid var(--color-border);
   border-radius: 6px;
   cursor: pointer;
   font-weight: 600;
@@ -45,8 +51,9 @@
 }
 
 .logout-button:hover {
-  background: white;
-  color: #667eea;
+  background: var(--color-primary);
+  color: #ffffff;
+  border-color: var(--color-primary);
 }
 
 @media (max-width: 640px) {
@@ -57,6 +64,10 @@
   .header-content {
     padding: 0 0.75rem;
     justify-content: space-between;
+  }
+
+  .header-left {
+    gap: 0.75rem;
   }
 
   .header h1 {
