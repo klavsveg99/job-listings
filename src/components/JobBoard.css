@@ -22,6 +22,39 @@
   transform: translateY(-2px);
 }
 
+.status-filters {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.status-filters button {
+  padding: 0.5rem 1rem;
+  background: var(--color-button-background);
+  color: var(--color-button-text);
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.status-filters button:hover {
+  background: var(--color-primary);
+  color: #ffffff;
+}
+
+.status-filters button.active {
+  background: var(--color-primary);
+  color: #ffffff;
+  border-color: var(--color-primary);
+}
+
+.status-filters button.disabled {
+  opacity: 0.5;
+}
+
 .jobs-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
@@ -50,6 +83,16 @@
     padding: 0.65rem 1.25rem;
     font-size: 0.95rem;
     margin-bottom: 1.5rem;
+  }
+
+  .status-filters {
+    gap: 0.25rem;
+    margin-bottom: 1rem;
+  }
+
+  .status-filters button {
+    padding: 0.4rem 0.75rem;
+    font-size: 0.85rem;
   }
 
   .jobs-grid {
