@@ -2,6 +2,8 @@ import { createContext, useContext, useEffect, useState } from 'react'
 import type { User, Session, AuthResponse } from '@supabase/supabase-js'
 import { supabase } from '../supabaseClient'
 
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string
+
 interface AuthContextType {
   user: User | null
   session: Session | null
@@ -82,8 +84,22 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }
 
   const signOut = async () => {
-    const { error } = await supabase.auth.signOut()
-    if (error) throw error
+    try {
+      const { error } = await supabase.auth.signOut({ scope: 'local' })
+      if (error) throw error
+    } catch (err) {
+      const error = err as Error
+      if (error.message.includes('Auth session missing')) {
+        // Clear local storage manually since signOut failed
+        const projectRef = new URL(supabaseUrl).hostname.split('.')[0]
+        localStorage.removeItem(`sb-${projectRef}-auth-token`)
+      } else {
+        throw error
+      }
+    }
+    // Manually update state to ensure UI updates even if listener doesn't fire
+    setUser(null)
+    setSession(null)
   }
 
   return (
