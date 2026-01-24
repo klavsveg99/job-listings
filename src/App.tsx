@@ -13,7 +13,7 @@ function AppContent() {
     return (
       <>
         <ThemeToggle />
-        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', fontSize: '1.2rem', color: 'var(--color-primary)' }}>Loading...</div>
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', fontSize: '1.2rem', color: 'var(--color-text)' }}>Loading...</div>
       </>
     )
   }

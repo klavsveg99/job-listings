@@ -110,7 +110,7 @@ export const JobBoard = () => {
       <AddJobForm onJobAdded={fetchJobs} editingJob={editingJob} onEditComplete={() => setEditingJob(null)} />
 
       {loading ? (
-        <div className="loading">Loading jobs...</div>
+        <div style={{color: 'var(--color-text)'}} className="loading">Loading jobs...</div>
       ) : jobs.length === 0 ? (
         <div className="empty-state">
           <p>No jobs yet. Add your first job to get started!</p>
